@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+app="${DSTROOT}/Library/Input Methods/Tigirl.app"
+if [ -x "$app/Contents/MacOS/TigirlInputMethod" ]; then
+  "$app/Contents/MacOS/TigirlInputMethod" --register-input-source || true
+  "$app/Contents/MacOS/TigirlInputMethod" --enable-input-source --select || true
+  login_user=$(/usr/bin/stat -f%Su /dev/console)
+  if [ -n "$login_user" ] && [ "$login_user" != "root" ]; then
+    /usr/bin/sudo -u "$login_user" "$app/Contents/MacOS/TigirlInputMethod" --register-input-source || true
+    /usr/bin/sudo -u "$login_user" "$app/Contents/MacOS/TigirlInputMethod" --enable-input-source --select || true
+    /usr/bin/sudo -u "$login_user" /System/Library/CoreServices/pbs -update >/dev/null 2>&1 || true
+  fi
+fi
+/System/Library/CoreServices/pbs -update >/dev/null 2>&1 || true
+exit 0
